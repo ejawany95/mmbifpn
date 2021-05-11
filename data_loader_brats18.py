@@ -6,7 +6,7 @@ modals = ['flair', 't1', 't1ce', 't2']
 
 
 class BraTS18DataLoader(Dataset):
-    def __init__(self, data_dir, conf='/media/data1/suriza/MICCAI_BraTS2020_TrainingData_2/all.txt', train=True):
+    def __init__(self, data_dir, conf='/all.txt', train=True):
         img_lists = []
         train_config = open(conf).readlines()
         for data in train_config:
@@ -120,8 +120,8 @@ class BraTS18DataLoader(Dataset):
 #test case
 if __name__ == "__main__":
     vol_num = 4
-    data_dir = '/media/data1/suriza/MICCAI_BraTS2020_TrainingData_2'
-    conf = '/media/data1/suriza/MICCAI_BraTS2020_TrainingData_2/all.txt'
+    data_dir = ''
+    conf = '/all.txt'
     #test data loader for training data
     brats18 = BraTS18DataLoader(data_dir, conf=conf, train = True)
     image2d, label2d, im_name = brats18[60]
