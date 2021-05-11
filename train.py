@@ -1,4 +1,4 @@
-from model.ablation_study import MM_BiFPN
+from model.mmbifpn import MM_BiFPN
 from src.utils import *
 
 from data_loader.data_loader_brats18 import BraTS18DataLoader
@@ -14,11 +14,11 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 #hyper parameter
-data_dir = '/media/data1/suriza/research/BraTS-DMFNet/MICCAI_BraTS_2018_Data_Training'
-data_dir_valid = '/media/data1/suriza/research/BraTS-DMFNet/MICCAI_BraTS_2018_Data_Training'
-conf_train = '/media/data1/suriza/research/BraTS-DMFNet/MICCAI_BraTS_2018_Data_Training/train_18_3.txt'
-conf_valid = '/media/data1/suriza/research/BraTS-DMFNet/MICCAI_BraTS_2018_Data_Training/valid_18_3.txt'
-save_dir = '/media/data1/suriza/research/result/ablation_remove_flair/3_1/'
+data_dir = ''
+data_dir_valid = ''
+conf_train = ''
+conf_valid = ''
+save_dir = ''
 
 learning_rate = 0.0001
 batch_size = 32
