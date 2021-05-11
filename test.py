@@ -10,10 +10,10 @@ import torch
 import torch.nn as nn
 
 #hyper parameter
-data_dir = '/media/data1/suriza/research/BraTS-DMFNet/MICCAI_BraTS_2018_Data_Training'
-conf_test = '/media/data1/suriza/research/BraTS-DMFNet/MICCAI_BraTS_2018_Data_Training/valid_18_4.txt'
-save_dir = '/media/data1/suriza/research/mm_bifpn/ckpt_test/'
-saved_model_path = '/media/data1/suriza/research/result/mm_bifpn3/fold5/final_epoch.pth'
+data_dir = ''
+conf_test = ''
+save_dir = ''
+saved_model_path = ''
 batch_size = 32
 # temporal=4
 
