@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 
-from src.utils import *
+from utils import *
 
 modals = ['flair', 't1', 't1ce', 't2']
 
