@@ -1,8 +1,8 @@
-from model.mmbifpn import MM_BiFPN
-from src.utils import *
+from mmbifpn import MM_BiFPN
+from utils import *
 
-from data_loader.data_loader_brats18 import BraTS18DataLoader
-from main.test import evaluation
+from data_loader_brats18 import BraTS18DataLoader
+from test import evaluation
 
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
@@ -14,18 +14,18 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 #hyper parameter
-data_dir = ''
-data_dir_valid = ''
-conf_train = ''
-conf_valid = ''
-save_dir = ''
+data_dir = ''#path to training data directory
+data_dir_valid = ''#path to valid data directory
+conf_train = 'data_list/train_18_0.txt' #path to training list 'train.txt' file
+conf_valid = 'data_list/valid_18_0.txt'#path to valid list 'valid.txt' file
+save_dir = ''#path to save trained model '.pth' file
 
 learning_rate = 0.0001
 batch_size = 32
 epochs = 100
 
 cuda_available = torch.cuda.is_available()
-device_ids = [0,1,2,3]
+device_ids = [0,1,2,3,4,5,6,7] #number of gpu available
 torch.cuda.set_device(device_ids[0])
 
 if not os.path.exists(save_dir):
