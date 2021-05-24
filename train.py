@@ -20,6 +20,8 @@ conf_train = 'data_list/train_18_0.txt' #path to training list 'train.txt' file
 conf_valid = 'data_list/valid_18_0.txt'#path to valid list 'valid.txt' file
 save_dir = ''#path to save trained model '.pth' file
 
+# as the experiment is done is 5-fold cross validation manner, plese change the conf_train/valid 'train/valid.txt' file accordingly for each fold
+
 learning_rate = 0.0001
 batch_size = 32
 epochs = 100
