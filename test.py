@@ -1,7 +1,7 @@
-from model.mm_bifpn import MM_BiFPN
-from src.utils import *
+from mm_bifpn import MM_BiFPN
+from utils import *
 
-from data_loader.data_loader_brats18 import BraTS18DataLoader
+from data_loader_brats18 import BraTS18DataLoader
 
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
@@ -10,17 +10,17 @@ import torch
 import torch.nn as nn
 
 #hyper parameter
-data_dir = ''
-conf_test = ''
-save_dir = ''
-saved_model_path = ''
+data_dir = ''#path to test data directory
+conf_test = ''#path to test list 'valid.txt' file
+saved_model_path = '' #path to saved trained model '.pth' file
 batch_size = 32
-# temporal=4
+# as the experiment is done is 5-fold cross validation manner, plese change the conf_test valid.txt file accordingly for each fold
+#as well as the trained model .pth file
 
 #multi-GPU
 cuda_available = torch.cuda.is_available()
 if cuda_available:
-    device_ids=[0,1,2,3]
+    device_ids=[0]
     torch.cuda.set_device(device_ids[0])
 
 def to_var(tensor):
