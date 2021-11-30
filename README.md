@@ -1,2 +1,1 @@
-# mmbifpn
-multi-modal feature fusion mri brain tumor segmentation
+# MM-BiFPN: Multi-Modality Fusion Network with Bi-FPN for MRI Brain Tumor Segmentation
