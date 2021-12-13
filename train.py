@@ -12,22 +12,24 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import time
 
 #hyper parameter
 data_dir = ''#path to training data directory
-data_dir_valid = ''#path to valid data directory
-conf_train = 'data_list/train_18_0.txt' #path to training list 'train.txt' file
-conf_valid = 'data_list/valid_18_0.txt'#path to valid list 'valid.txt' file
-save_dir = ''#path to save trained model '.pth' file
-
+data_dir_valid = ''#path to training dataset
+conf_train = ''#path to train .txt file
+conf_valid = ''#path to valid .txt file
+save_dir = ''#path to save the trained model '.pth' file and result images
 # as the experiment is done is 5-fold cross validation manner, plese change the conf_train/valid 'train/valid.txt' file accordingly for each fold
+
+#dataset can be obtain from :http://braintumorsegmentation.org/
 
 learning_rate = 0.0001
 batch_size = 32
 epochs = 100
 
 cuda_available = torch.cuda.is_available()
-device_ids = [0,1,2,3,4,5,6,7] #number of gpu available
+device_ids = [0,1,2,3,4,5,6,7] #change this according to number of gpu devices available
 torch.cuda.set_device(device_ids[0])
 
 if not os.path.exists(save_dir):
@@ -64,7 +66,10 @@ def run():
     criterion = nn.CrossEntropyLoss(weight=weight)
 
     for epoch in range(1, epochs + 1):
+
         print('epoch: ' + str(epoch))
+        since = int(round(time.time() * 1000))
+
         train_loss = []
         net.train()
         for step, (image, label, index) in enumerate(train_dataset):
@@ -105,6 +110,10 @@ def run():
 
         if epoch == epochs:
             torch.save(net.state_dict(), os.path.join(save_dir, 'final_epoch.pth'))
+
+        torch.cuda.synchronize()
+        time_elapsed = int(round(time.time() * 1000)) - since
+        print('training time elapsed {}ms'.format(time_elapsed))
 
     print('Best epoch is %d' % best_epoch)
     print('done!')
