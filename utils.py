@@ -5,6 +5,7 @@ import torch
 import os
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 """
 ***********************  Data loader related   ***********************
@@ -195,24 +196,23 @@ def save_train_images(images, predicts, labels, index, epoch, save_dir='ckpt/'):
         save_one_image_label_pre(images[b,:,:,:], labels[b,:,:], predicts[b,:,:],
                                  save_dir=save_dir + 'epoch' + str(epoch) + '/b_' +str(b) + name + '.jpg')
 
-# def save_valid_images(images, predicts, labels, index, save_dir='ckpt/'):
-#     """
-#     :param images:      4D float tensor     bz * 4(modal)  * height * weight
-#     :param predicts:    3D Long tensor      bz * height * weight
-#     :param labels:      3D Long tensor      bz * height * weight
-#     :param index:       list                [str] * bz
-#     :return:
-#     """
-#     images = np.asarray(images.cpu().data)
-#     predicts = np.asarray(predicts.cpu().data)
-#     labels = np.asarray(labels.cpu())
-#
-#     if not os.path.exists(save_dir):
-#         os.mkdir(save_dir)
-#     for b in range(images.shape[0]):  # for each batch
-#         name = index[b].split('/')[-1]
-#         save_one_image_label_pre(images[b,:,:,:], labels[b,:,:], predicts[b,:,:],
-#                                  save_dir=save_dir + '/b_' +str(b) + name + '.jpg')
+def save_test_images(images, predicts, labels, subject, temporal, save_dir='ckpt/'):
+    """
+    :param images:      4D float tensor     bz * 4(modal)  * height * weight
+    :param predicts:    3D Long tensor      bz * height * weight
+    :param labels:      3D Long tensor      bz * height * weight
+    :param index:       list                [str] * bz
+    :return:
+    """
+    images = np.asarray(images.cpu().data)
+    predicts = np.asarray(predicts.cpu().data)
+    labels = np.asarray(labels.cpu())
+
+    if not os.path.exists(save_dir + 'temp' + str(temporal)):
+        os.mkdir(save_dir + 'temp' + str(temporal))
+    for b in range(images.shape[0]):  # for each batch
+        name = subject[b].split('/')[-1]
+        save_one_image_label_pre(images[b,:,:,:], labels[b,:,:], predicts[b,:,:], save_dir=save_dir + 'temp' + str(temporal) + '/try_full_b1_' +str(b) + name + '.jpg')
 
 
 """
@@ -302,6 +302,20 @@ def meanIoU(predicts, target, numclass=5):
         ious = cal_ious3d(predicts, target, num_class=numclass)
     return np.mean(ious)
 
+def false_positive(predict, target):
+
+    TN, FP, FN, TP = confusion_matrix(target, predict, labels=[0,1]).ravel()
+    
+    FP = FP.astype(float)
+    FP = np.nan_to_num(FP)
+    # FN = FN.astype(float)
+    # TP = TP.astype(float)
+    TN = TN.astype(float)
+    TN = np.nan_to_num(TN)
+ 
+    FPR = FP / (FP + TN)
+
+    return FPR
 
 def cal_subject_iou_5class(predicts, target):
     """
@@ -318,6 +332,22 @@ def cal_subject_iou_5class(predicts, target):
         score = cal_iou(predict, tar)
         ious.append(score)
     return ious
+
+def cal_subject_fp_5class(predicts, target):
+    """
+        :param predicts:    3D Tensor   155 * 240 * 240 (val 0-4)
+        :param target:      3D Tensor   155 * 240 * 240 (val 0-4)
+        :return:
+        """
+    fp_s = []  # len:  bz * temporal * class
+    predicts = np.asarray(predicts.long()).flatten()
+    target = np.asarray(target.long()).flatten()
+    for i in range(5):  # for label i (0,1,2,3,4)
+        predict = ((predicts == i) + 0)  # 2D Long np.array 240 * 240
+        tar = ((target == i) + 0)  # 2D Long np.array 240 * 240
+        score = false_positive(predict, tar)
+        fp_s.append(score)
+    return fp_s
 
 
 def cal_subject_dice_whole_tumor(predicts, target):
@@ -482,6 +512,34 @@ def cal_ppv_enhancing_tumor(predicts, target):
     score = PPV(predict, tar)
     return score
 
+def cal_fp_whole_tumor(predicts, target):
+    predicts = np.asarray(predicts.long()).flatten()  # 1d long (155 * 240 * 240)
+    target = np.asarray(target.long()).flatten()  # 1d long (155 * 240 * 240)
+
+    predict = ((predicts == 1) + (predicts == 2) + (predicts == 4) + 0)
+    tar = ((target == 1) + (target == 2) + (target == 4) + 0)
+
+    score = false_positive(predict, tar)
+    return score
+
+def cal_fp_core_tumor(predicts, target):
+    predicts = np.asarray(predicts.long()).flatten()  # 1d long (155 * 240 * 240)
+    target = np.asarray(target.long()).flatten()  # 1d long (155 * 240 * 240)
+
+    predict = ((predicts == 1) + (predicts == 4) + 0)
+    tar = ((target == 1) + (target == 4) + 0)
+    score = false_positive(predict, tar)
+    return score
+
+def cal_fp_enhance_tumor(predicts, target):
+    predicts = np.asarray(predicts.long()).flatten()  # 1d long (155 * 240 * 240)
+    target = np.asarray(target.long()).flatten()  # 1d long (155 * 240 * 240)
+
+    predict = ((predicts == 4) + 0)
+    tar = ((target == 4) + 0)
+
+    score = false_positive(predict, tar)
+    return score
 
 def dice(predict, target):
     """
@@ -492,8 +550,7 @@ def dice(predict, target):
     """
     smooth = 0.0001
     intersection = float((target * predict).sum())
-    return (2.0 * intersection + smooth) / (float(predict.sum())
-                                            + float(target.sum()) + smooth)
+    return (2.0 * intersection + smooth) / (float(predict.sum())+ float(target.sum()) + smooth)
 
 
 def sensitivity(predict, target):
@@ -521,8 +578,7 @@ def PPV(predict, target):
 def jaccard(predict, target):
     smooth = 0.0001
     intersection = float((target * predict).sum())
-    return (intersection + smooth) / ((float(predict.sum())
-                                            + float(target.sum()) - intersection + smooth))
+    return (intersection + smooth) / ((float(predict.sum())+ float(target.sum()) - intersection + smooth))
 
 #def jaccard(predict, target):
  #   smooth = 0.0001
