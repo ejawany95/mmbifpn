@@ -50,8 +50,8 @@ print('Valid data...')
 valid_data = BraTS18DataLoader(data_dir=data_dir, conf=conf_valid, train=False)
 
 #dataloader
-train_dataset = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True)
-valid_dataset = DataLoader(dataset=valid_data, batch_size=1, shuffle=True)
+train_dataset = DataLoader(dataset=train_data, batch_size=batch_size, pin_memory=True, shuffle=True, num_workers=4)
+valid_dataset = DataLoader(dataset=valid_data, batch_size=1, pin_memory=True, shuffle=True, num_workers=4)
 
 def to_var(tensor):
     return Variable(tensor.cuda() if cuda_available else tensor)
